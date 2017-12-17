@@ -16,40 +16,38 @@ function run(input, len) {
         positions.push(String.fromCharCode('a'.charCodeAt(0) + i));
     }
 
-    const funcs = input.split(',').map(move => {
+    const parsed = input.split(',').map(move => {
         const [, command, a, b] = move.match(/([s,x,p])(\d+|\w)\/?(\d+|\w)?/);
+        return {
+            command, a, b, ai: +a, bi: +b
+        };
+    });
 
-        switch (command) {
-            case 's':
-                const d = +a;
-                return () => {
-                    const p1 = positions.slice(-d);
-                    const p2 = positions.slice(0, positions.length - d);
-                    positions = [...p1, ...p2];
-                }
-            case 'x':
-                return () => {
+    function dance() {
+        parsed.forEach(({ command, a, b, ai }) => {
+            switch (command) {
+                case 's':
+                    positions.splice(0, 0, ...positions.splice(-ai))
+                    break;
+                case 'x':
                     let tmp = positions[b];
                     positions[b] = positions[a];
                     positions[a] = tmp;
-                }
-            case 'p':
-                return () => {
+                    break;
+                case 'p':
                     const ixa = positions.indexOf(a);
                     const ixb = positions.indexOf(b);
                     let tmp2 = positions[ixb];
                     positions[ixb] = positions[ixa];
                     positions[ixa] = tmp2;
-                }
-        }
-    });
+                    break;
+            }
+        });
 
-    function dance() {
-        funcs.forEach(f => f());
+        return positions.join('');
     }
 
-    dance();
-    part1 = positions.join('');
+    part1 = dance();
 
     const map1 = new Map();
     const map2 = new Map();
@@ -57,8 +55,7 @@ function run(input, len) {
 
     let i = 1;
     while (true) {
-        dance();
-        const str = positions.join('');
+        const str = dance();
         if (map1.has(str)) {
             part2 = map2.get((1000000000 - 1) % i)
             break;
@@ -68,7 +65,6 @@ function run(input, len) {
         }
         i++;
     }
-
 
     return [part1, part2];
 }
