@@ -6,8 +6,8 @@ const testInput = `
 `.trim();
 
 function run(input) {
-    let part1;
-    let part2;
+    let part1 = 0;
+    let part2 = 0;
 
     const lines = input.split('\n').map((line, ix) => {
 
@@ -17,7 +17,7 @@ function run(input) {
 }
 
 const testResult = run(testInput);
-const result = run(input);
-
 console.log('test: ', testResult.join(' / '));
+
+const result = run(input);
 console.log('result: ', result.join(' / '));
