@@ -9,9 +9,12 @@ function run(input) {
     let part1 = 0;
     let part2 = 0;
 
-    const lines = input.split('\n').map((line, ix) => {
+    const lines = input
+        .split('\n')
+        .filter(line => line.length)
+        .map((line, ix) => {
 
-    });
+        });
 
     return [part1, part2];
 }
