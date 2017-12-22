@@ -9,10 +9,6 @@ const testInput = `
 ...
 `.trim();
 
-function getKey(x, y) {
-    return x + '_' + y;
-}
-
 
 function run(input) {
     let part1 = 0;
