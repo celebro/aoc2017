@@ -54,7 +54,6 @@ function parse(input, is2) {
         });
     }
 
-
     input
         .split('\n')
         .filter(line => line.length)
@@ -81,6 +80,15 @@ function run(input, is2) {
 
     const { def, initial, elements } = parse(input, is2);
     const len = initial.length;
+
+    function getKey(pos) {
+        const floors = [[0, 0], [0, 0], [0, 0], [0, 0]];
+        for (let i = 1; i < len; i++) {
+            const floor = floors[pos[i] - 1];
+            floor[def[i].type - 1]++;
+        }
+        return pos[0] + floors.map(a => a.join('')).join('');
+    }
 
     function done(pos) {
         return pos.every(p => p === 4);
@@ -142,7 +150,7 @@ function run(input, is2) {
         }
 
         // Eliminate duplicates
-        const key = pos.join('');
+        const key = getKey(pos);
         if (set.has(key)) {
             // Already visited
             continue;
