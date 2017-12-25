@@ -99,7 +99,7 @@ function run(input, is2) {
             return false;
         }
 
-        const generators = new Array(elements);
+        const generators = new Array(elements + 1);
         let generatorCount = 0;
 
         for (let i = 1; i < len; i++) {
@@ -189,11 +189,11 @@ function run(input, is2) {
     return [part1, part2];
 }
 
-// const testResult = run(testInput);
-// console.log('test: ', testResult.join(' / '));
+const testResult = run(testInput);
+console.log('test: ', testResult.join(' / '));
 
-// const result = run(input);
-// console.log('result: ', result.join(' / '));
+const result = run(input);
+console.log('result: ', result.join(' / '));
 const result2 = run(input, true);
 console.log('result: ', result2.join(' / '));
 
