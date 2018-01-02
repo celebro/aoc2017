@@ -9,10 +9,10 @@ function run(input) {
     let part1 = 0;
     let part2 = 0;
 
-    const lines = input
+    input
         .split('\n')
         .filter(line => line.length)
-        .map((line, ix) => {
+        .forEach((line) => {
 
         });
 

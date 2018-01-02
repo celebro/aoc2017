@@ -1,3 +1,10 @@
 session=`cat session.txt`
 session=${session//$'\n'/} # Remove all newlines.
-curl --cookie "session=$session" "https://adventofcode.com/2017/day/$1/input" -o "$1.txt"
+if [ -z "$VAR" ]; then
+    session=`cat ../session.txt`
+    session=${session//$'\n'/} # Remove all newlines.
+fi
+# echo "$session"
+curl --cookie "session=$session" "https://adventofcode.com/$1/day/$2/input" -o "$2.txt"
+
+cp ../template.js $2.js
