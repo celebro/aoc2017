@@ -14,6 +14,7 @@ module.exports = class Queue {
             const value = this.queue[this.ix++];
             if (this.ix === this.clearAfter) {
                 this.queue.splice(0, this.ix);
+                this.ix = 0;
             }
             return value;
         } else {
