@@ -46,24 +46,24 @@ module.exports = class Grid {
         }
     }
 
-    print(printer) {
+    print(printer, pad = 1) {
         const leftPad = require('../aoc2017/util/leftPad');
 
         for (let row = this.minRow; row <= this.maxRow; row++) {
             let line = [];
             for (let col = this.minCol; col <= this.maxCol; col++) {
                 const node = this.get(col, row);
-                if (node) {
-                    line.push(printer(node, col, row));
+                if (node !== undefined) {
+                    line.push(leftPad(printer(node, col, row), pad));
                 } else {
-                    line.push(' ');
+                    line.push(' '.repeat(pad));
                 }
             }
 
             if (row === this.minRow) {
                 let line = [];
                 for (let col = this.minCol; col <= this.maxCol; col++) {
-                    line.push(col % 10);
+                    line.push(leftPad(col % 10, pad));
                 }
                 console.log('    ' + line.join(''));
             }
