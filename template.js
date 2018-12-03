@@ -1,20 +1,24 @@
 const fs = require('fs');
 
-const input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
+let input = '';
+try {
+    input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
+} catch(e) {}
 const testInput = `
 
-`.trim();
+`
+.trim()
+.replace(/, /g, '\n');
+
 
 function run(input) {
-    let part1 = 0;
-    let part2 = 0;
+    let part1 = undefined;
+    let part2 = undefined;
+    const lines = input.split('\n').filter(line => line.length);
 
-    input
-        .split('\n')
-        .filter(line => line.length)
-        .forEach((line) => {
+    lines.forEach((line, ix) => {
 
-        });
+    });
 
     return [part1, part2];
 }
