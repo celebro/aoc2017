@@ -1,4 +1,6 @@
 const fs = require('fs');
+const Grid = require('../utils/Grid');
+const sscanf = require('scan.js').scan;
 
 let input = '';
 try {
@@ -18,49 +20,41 @@ function run(input) {
     let part2 = undefined;
     const lines = input.split('\n').filter(line => line.length);
 
-    const map = new Map();
-    function coord(x, y) {
-        return x + '_' + y;
-    }
+    const map = new Grid(() => 0);
     lines.forEach((line, ix) => {
-        const [id, _, pos, size] = line.split(/ |: /);
-        const [x, y] = pos.split(',').map(x => +x);
-        const [w, h] = size.split('x').map(x => +x);
+        const [id, x, y, w, h] = sscanf(line, '#%d @ %d,%d: %dx%d');
 
         for (let i = x; i < x + w; i++) {
             for (let j = y; j < y + h; j++) {
-                map.set(coord(i, j), (map.get(coord(i, j)) || 0) + 1);
+                map.set(i, j, map.get(i, j) + 1);
             }
         }
     });
 
     let sum = 0;
-    for (let i = 0; i <= 1000; i++) {
-        for (let j = 0; j < 1000; j++) {
-            const val = map.get(coord(i, j));
-            if (val > 1) {
-                sum++;
-            }
+    // todo should not invoke default getter
+    // todo util for slice (double for loop)
+    map.forEach(value => {
+        if (value > 1) {
+            sum++;
         }
-    }
+    });
     part1 = sum;
 
 
     lines.forEach((line, ix) => {
-        const [id, _, pos, size] = line.split(/ |: /);
-        const [x, y] = pos.split(',').map(x => +x);
-        const [w, h] = size.split('x').map(x => +x);
+        const [id, x, y, w, h] = sscanf(line, '#%d @ %d,%d: %dx%d');
 
         let all = true;
         for (let i = x; i < x + w; i++) {
             for (let j = y; j < y + h; j++) {
-                if (map.get(coord(i, j)) !== 1) {
+                if (map.get(i, j) !== 1) {
                     all = false;
                 }
             }
         }
         if (all) {
-            part2 = id.substring(1);
+            part2 = id;
         }
     });
 
