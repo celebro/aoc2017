@@ -1,4 +1,5 @@
 const fs = require('fs');
+const sscanf = require('scan.js').scan;
 
 let input = '';
 try {
@@ -17,7 +18,7 @@ function run(input) {
     const lines = input.split('\n').filter(line => line.length);
 
     lines.forEach((line, ix) => {
-
+        const [] = sscanf(line, '');
     });
 
     return [part1, part2];

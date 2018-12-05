@@ -1,4 +1,5 @@
 const fs = require('fs');
+const sscanf = require('scan.js').scan;
 
 let input = '';
 try {
@@ -36,33 +37,27 @@ function run(input) {
     let maxGuard;
     const times = {};
     lines.sort().forEach((line, ix) => {
-        const [_, datetime, text] = line.split(/\[|\] /);
+        const [date, hours, minutes, text] = sscanf(line, '[%s %d:%d]  %[^\n]');
+
         if (text.startsWith('Guard')) {
-            let id = +text.split(/ #?/)[1];
+            let [id] = sscanf(text, 'Guard #%d');
             if (!times[id]) {
                 times[id] = {
                     id: id,
                     sum: 0,
                     lastSleep: 0,
-                    minutes: []
-                }
-                for (let i = 0; i < 60; i++) {
-                    times[id].minutes[i] = 0;
+                    minutes: Array(60).fill(0)
                 }
             }
             guard = times[id];
         } else if (guard !== undefined) {
-            const split = datetime.split(' ');
-            const date = split[0];
-            const time = split[1];
-            const minutes = +time.split(':')[1];
             if (text === 'falls asleep') {
                 guard.lastSleep = minutes;
             } else if (text === 'wakes up') {
                 const duration = minutes - guard.lastSleep;
                 guard.sum += duration;
                 for (let i = guard.lastSleep; i < guard.lastSleep + duration; i++) {
-                    guard.minutes[i] = (guard.minutes[i] || 0) + 1;
+                    guard.minutes[i] = guard.minutes[i] + 1;
                 }
                 if (!maxGuard || maxGuard.sum < guard.sum) {
                     maxGuard = guard;
