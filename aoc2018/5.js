@@ -17,36 +17,38 @@ function run(input) {
     let part2 = Infinity;
     const line = input.split('\n').filter(line => line.length)[0];
 
-    let set = new Set();
-    for (const char of line) {
-        set.add(char.toLowerCase());
+
+    console.time('part1');
+    let result1 = react(line.split('').map(char => char.codePointAt(0)), 0);
+    part1 = result1.length;
+    result1.stack.length = result1.length;
+    console.timeEnd('part1')
+
+    console.time('part2');
+    for (let codePoint = 'A'.codePointAt(0); codePoint < 'Z'.codePointAt(0); codePoint++) {
+        part2 = Math.min(part2, react(result1.stack, codePoint).length)
     }
 
-    part1 = react(line);
-    // console.time('time');
-
-    for (let char of set) {
-        const filtered = line.replace(new RegExp(char, 'gi'), '');
-        part2 = Math.min(part2, react(filtered))
-    }
-
-    // console.timeEnd('time');
+    console.timeEnd('part2');
 
     return [part1, part2];
 }
 
 /**
  *
- * @param {string} str
+ * @param {array} input
  */
-function react(str) {
-    let stack = new Array(str.length);
+function react(input, ignore) {
+    let stack = new Array(input.length);
     let length = 0;
 
-    const caseDiff =  Math.abs('a'.codePointAt(0) - 'A'.codePointAt(0));
+    for (let i = 0; i < input.length; i++) {
+        let c = input[i];
+        if (c === ignore || c === ignore + 32) {
+            continue;
+        }
 
-    for (let i = 0; i < str.length; i++) {
-        stack[length++] = str.codePointAt(i);
+        stack[length++] = input[i];
 
         while (true) {
             if (length < 2) break;
@@ -54,7 +56,7 @@ function react(str) {
             const n1 = stack[length - 1];
             const n2 = stack[length - 2];
 
-            if (Math.abs(n1 - n2) === caseDiff) {
+            if (Math.abs(n1 - n2) === 32) {
                 length = length - 2;
             } else {
                 break;
@@ -62,7 +64,7 @@ function react(str) {
         }
     }
 
-    return length;
+    return { length, stack };
 }
 
 const testResult = run(testInput);
