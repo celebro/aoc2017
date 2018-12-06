@@ -22,6 +22,12 @@ module.exports = class Queue {
         }
     }
 
+    peek() {
+        if (this.queue.length > 0) {
+            return this.queue[this.ix];
+        }
+    }
+
     size() {
         return this.queue.length - this.ix;
     }
