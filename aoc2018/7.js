@@ -23,10 +23,11 @@ function run(input, numWorkers, cost) {
     let part2 = undefined;
     const lines = input.split('\n').filter(line => line.length);
 
+    console.time('part1');
     const nodes = new Map();
     function getNode(id) {
         if (!nodes.has(id)) {
-            const node = { id: id, children: [], parents: [] };
+            const node = { id: id, children: [], parents1: 0, parent2: 0 };
             nodes.set(id, node);
         }
         return nodes.get(id);
@@ -37,28 +38,31 @@ function run(input, numWorkers, cost) {
         let node1 = getNode(first);
         let node2 = getNode(second);
         node1.children.push(node2);
-        node2.parents.push(node1);
+        node2.parents1++;
+        node2.parents2++;
     });
 
-    // let list = Array.from(nodes.values()).filter(x => x.parents.length === 0);
-    // console.log(list.map(x => x.id));
+    {
+        part1 = '';
+        let list = Array.from(nodes.values()).filter(x => x.parents1 === 0);
+        while (list.length) {
+            list.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
+            const next = list.pop();
+            part1 += next.id;
+            next.children.forEach(child => {
+                child.parents1 -= 1;
+                if (child.parents1 === 0) {
+                    list.push(child);
+                }
+            });
+        }
+    }
+    console.timeEnd('part1');
 
-    part1 = '';
-    // while (list.length) {
-    //     list.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
-    //     const next = list.pop();
-    //     part1 += next.id;
-    //     next.children.forEach(child => {
-    //         child.parents = child.parents.filter(parent => parent !== next);
-    //         if (child.parents.length === 0) {
-    //             list.push(child);
-    //         }
-    //     });
-    // }
-
+    console.time('part2');
     let time = 0;
 
-    let list = Array.from(nodes.values()).filter(x => x.parents.length === 0);
+    let list = Array.from(nodes.values()).filter(x => x.parents2 === 0);
     const workers = [];
     while (list.length || workers.length) {
         list.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
@@ -67,7 +71,6 @@ function run(input, numWorkers, cost) {
             const next = list.pop();
             workers.push({ time: time + cost + next.id.codePointAt(0) - 'A'.codePointAt(0) + 1, id: next.id, node: next });
         }
-        // console.table(workers);
 
         workers.sort((a, b) => {
             const diff = a.time - b.time;
@@ -81,18 +84,18 @@ function run(input, numWorkers, cost) {
         while (workers[0] && workers[0].time === first.time) {
             const w = workers.shift();
             time = w.time;
-            part1 += w.node.id;
             w.node.children.forEach(child => {
-                child.parents = child.parents.filter(parent => parent !== w.node);
-                if (child.parents.length === 0) {
+                child.parents2 -= 1;
+                if (child.parents2 === 0) {
                     list.push(child);
                 }
             });
         }
-        // console.log(part1, time);
     }
 
     part2 = time;
+
+    console.timeEnd('part2')
 
     return [part1, part2];
 }
