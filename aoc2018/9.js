@@ -1,5 +1,6 @@
 const fs = require('fs');
 const sscanf = require('scan.js').scan;
+const List = require('../utils/LinkedList');
 
 let input = '';
 try {
@@ -14,65 +15,22 @@ const testInput = `
 30 players; last marble is worth 5807 points
 `
 .trim()
-.replace(/, /g, '\n');
 
-function mod(n, MAX) {
-    return ((n % MAX) + MAX) % MAX;
-}
-
-function createNode(value) {
-    return {
-        value: value,
-        next: null,
-        prev: null
-    };
-}
-
-class Ring {
-    constructor() {
-        const node = createNode(0);
-        node.next = node.prev = node;
-        this.current = node;
-    }
-
-    move(steps) {
-        while (steps) {
-            this.current = steps > 0 ? this.current.next : this.current.prev;
-            steps += steps > 0 ? -1 : 1;
-        }
-    }
-
-    add(value) {
-        const node = createNode(value);
-        node.prev = this.current;
-        node.next = this.current.next;
-        this.current.next = node;
-        node.next.prev = node;
-        this.current = node;
-    }
-
-    remove() {
-        this.current.prev.next = this.current.next;
-        this.current.next.prev = this.current.prev;
-        this.current = this.current.next;
-    }
-}
 
 function runPart(numPlayers, last) {
     const players = Array(numPlayers).fill(0);
-    const marbles = new Ring();
+    const marbles = new List();
+    marbles.push(0);
 
-    let player = 1;
     for (let i = 1; i <= last; i++) {
         if (i % 23 === 0) {
-            marbles.move(-7);
-            players[player] += i + marbles.current.value;
-            marbles.remove();
+            marbles.rotate(7);
+            players[i % numPlayers] += i + marbles.pop();
+            marbles.rotate(-1);
         } else {
-            marbles.move(1);
-            marbles.add(i);
+            marbles.rotate(-1);
+            marbles.push(i);
         }
-        player = mod(player + 1, numPlayers);
     }
 
     return Math.max(...players);
@@ -83,7 +41,6 @@ function run(input) {
     let part2 = undefined;
 
     const [numPlayers, last] = sscanf(input, '%d players; last marble is worth %d points');
-
 
     console.time('part1');
     part1 = runPart(numPlayers, last);
@@ -99,6 +56,7 @@ function run(input) {
 testInput.split('\n').forEach(line => {
     const testResult = run(line);
     console.log(line + ': ', testResult.join(' / '));
+    console.log();
 })
 
 const result = run(input);

@@ -8,8 +8,7 @@ try {
 const testInput = `
 
 `
-.trim()
-.replace(/, /g, '\n');
+.trim();
 
 
 function run(input) {

@@ -27,48 +27,48 @@ function run(input, numWorkers, cost) {
     const nodes = new Map();
     function getNode(id) {
         if (!nodes.has(id)) {
-            const node = { id: id, children: [], parents1: 0, parent2: 0 };
+            const node = { id: id, children: [], parents1: 0, parents2: 0 };
             nodes.set(id, node);
         }
         return nodes.get(id);
     }
 
     lines.forEach((line, ix) => {
-        const [first, second] = sscanf(line, 'Step %s must be finished before step %s can begin.');
-        let node1 = getNode(first);
-        let node2 = getNode(second);
+        const parts = line.split(' ');
+        let node1 = getNode(parts[1]);
+        let node2 = getNode(parts[7]);
         node1.children.push(node2);
         node2.parents1++;
         node2.parents2++;
     });
 
-    {
-        part1 = '';
-        let list = Array.from(nodes.values()).filter(x => x.parents1 === 0);
-        while (list.length) {
-            list.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
-            const next = list.pop();
-            part1 += next.id;
-            next.children.forEach(child => {
-                child.parents1 -= 1;
-                if (child.parents1 === 0) {
-                    list.push(child);
-                }
-            });
-        }
+    let list1 = Array.from(nodes.values()).filter(x => x.parents1 === 0);
+    // console.log(list1.map(x => x.id));
+
+    part1 = '';
+    while (list1.length) {
+        list1.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
+        const next = list1.pop();
+        part1 += next.id;
+        next.children.forEach(child => {
+            child.parents1 = child.parents1 - 1;
+            if (child.parents1 === 0) {
+                list1.push(child);
+            }
+        });
     }
     console.timeEnd('part1');
 
     console.time('part2');
     let time = 0;
 
-    let list = Array.from(nodes.values()).filter(x => x.parents2 === 0);
+    let list2 = Array.from(nodes.values()).filter(x => x.parents2 === 0);
     const workers = [];
-    while (list.length || workers.length) {
-        list.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
+    while (list2.length || workers.length) {
+        list2.sort((a, b) => b.id.codePointAt(0) - a.id.codePointAt(0));
 
-        while (workers.length < numWorkers && list.length > 0) {
-            const next = list.pop();
+        while (workers.length < numWorkers && list2.length > 0) {
+            const next = list2.pop();
             workers.push({ time: time + cost + next.id.codePointAt(0) - 'A'.codePointAt(0) + 1, id: next.id, node: next });
         }
 
@@ -85,17 +85,16 @@ function run(input, numWorkers, cost) {
             const w = workers.shift();
             time = w.time;
             w.node.children.forEach(child => {
-                child.parents2 -= 1;
+                child.parents2 = child.parents2 - 1;
                 if (child.parents2 === 0) {
-                    list.push(child);
+                    list2.push(child);
                 }
             });
         }
     }
 
     part2 = time;
-
-    console.timeEnd('part2')
+    console.timeEnd('part2');
 
     return [part1, part2];
 }
