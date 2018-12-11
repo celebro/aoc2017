@@ -8,6 +8,16 @@ try {
     input = fs.readFileSync(__filename.replace('11b.js', '11.txt'), 'utf8').trim();
 } catch(e) {}
 
+function print(grid) {
+    for (let i = 1; i <= 20; i++) {
+        let str = ''
+        for (let j = 1; j <= 20; j++) {
+            str += String(grid.get(j, i)).padStart(4, ' ');
+        }
+        console.log(str);
+    }
+    console.log();
+}
 
 function fill(input) {
     const grid = new Grid(301, 301, undefined, Int32Array);

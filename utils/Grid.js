@@ -54,6 +54,17 @@ module.exports = class Grid {
         }
     }
 
+    forSlice(col, row, cols, rows, cb) {
+        for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+                const _col = col + i;
+                const _row = row + j;
+
+                cb(this.get(col + i, row + j), col + i, row + j);
+            }
+        }
+    }
+
     print(printer, pad = 1) {
         const leftPad = require('../aoc2017/util/leftPad');
 
