@@ -2,10 +2,10 @@ module.exports = class Grid {
     constructor(emptyValueGetter) {
         this.grid = {};
         this.emptyValueGetter = emptyValueGetter;
-        this.minRow = 0;
-        this.maxRow = 0;
-        this.minCol = 0;
-        this.maxCol = 0;
+        this.minRow = Infinity;
+        this.maxRow = -Infinity;
+        this.minCol = Infinity;
+        this.maxCol = -Infinity;
     }
 
     get(col, row) {
