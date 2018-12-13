@@ -35,78 +35,72 @@ function run(input) {
     let part2 = undefined;
     const lines = input.split('\n').filter(line => line.length);
 
-    let initialState;
     let rules = new Map();
     let map = new Grid();
     lines.forEach((line, ix) => {
         if (ix === 0) {
-            initialState = line.substring(15);
+            let initialState = line.substring(15);
             initialState.split('').forEach((char, ix) => {
-                map.set(ix, 0, char);
+                map.set(ix, 0, char === '#');
             })
-        }
-        if (ix > 0) {
+        } else {
             let split = line.split(' => ');
-
-            rules.set(split[0], split[1]);
+            let ruleKey = 0;
+            for (const char of split[0]) {
+                ruleKey = (ruleKey << 1) + (char === '#' ? 1 : 0);
+            }
+            rules.set(ruleKey, split[1] === '#');
         }
     });
 
-    map.print(x => x);
-    let lastMap;
+    // map.print(x => x ? '#' : '.');
 
-    let hits = new Map();
+    let gen = 0;
     let lastSum = 0;
+    let lastDiff = 0;
+    let lastDiffRepeats = 0;
 
-    for (let gen = 0; gen < 1000; gen++) {
-        lastMap = map;
-        map = new Grid();
-        for (let i = lastMap.minCol - 5; i <= lastMap.maxCol + 5; i++) {
+    while(lastDiffRepeats < 5) {
+        gen++;
 
-            let str = [];
-            for (let j = i - 2; j <= i + 2; j++) {
-                str.push(lastMap.get(j, 0) || '.');
-            }
-            const tmp = str.join('');
-            // if (i === 15) {
-            //     debugger;
-            // }
-            let rule = rules.get(tmp);
-            if (rule === '#') {
-                map.set(i, 0, '#');
-            } else if (lastMap.get(i, 0) === '#') {
-                // debugger;
-                map.set(i, 0, '.');
-            } else if (lastMap.get(i, 0)) {
-                map.set(i, 0, lastMap.get(i, 0));
-            }
-        }
-
-        // map.print(x => x);
-        // debugger;
         let sum = 0;
-        for (let i = lastMap.minCol - 5; i <= lastMap.maxCol + 5; i++) {
-            if (map.get(i, 0) === '#') {
+        let ruleKey = 0;
+        for (let i = map.minCol - 2; i <= map.maxCol + 2; i++) {
+            ruleKey = ruleKey & 15;
+            ruleKey = ruleKey << 1;
+            ruleKey = ruleKey + (map.get(i + 2, 0) ? 1 : 0);
+
+            let rule = rules.get(ruleKey);
+            if (rule) {
+                map.set(i, 0, true);
                 sum += i;
+            } else if (map.get(i, 0)) {
+                map.set(i, 0, false);
             }
         }
+
+        if (gen === 20) {
+            part1 = sum;
+        }
+
+        if (sum - lastSum === lastDiff) {
+            lastDiffRepeats += 1;
+        } else {
+            lastDiffRepeats = 0;
+        }
+        lastDiff = sum - lastSum;
         lastSum = sum;
     }
-    part2 = lastSum + (50000000000 - 1000) * 194;
-    // 50000000000
-    // let sum = 0;
-    // for (let i = lastMap.minCol - 5; i <= lastMap.maxCol + 5; i++) {
-    //     if (map.get(i, 0) === '#') {
-    //         sum += i;
-    //     }
-    // }
-    // part1 = sum;
+    console.log(lastDiff);
+    part2 = lastSum + (50000000000 - gen) * lastDiff;
 
     return [part1, part2];
 }
 
-// const testResult = run(testInput);
-// console.log('test: ', testResult.join(' / '));
+const testResult = run(testInput);
+console.log('test: ', testResult.join(' / '));
 
+console.time('time');
 const result = run(input);
+console.timeEnd('time');
 console.log('result: ', result.join(' / '));
