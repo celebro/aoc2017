@@ -22,27 +22,31 @@ function run(input) {
     let inputStr = input.split('\n').filter(line => line.length)[0];
     let inputNum = +inputStr;
 
-    let list = [3, 7];
+    let list = new Uint8Array(300000000);
+    list[0] = 3;
+    list[1] = 7;
+    let listLen = 2;
+
     let p1 = 0;
     let p2 = 1;
 
-    let key1 = 0
     let key2 = 0;
-    const mod1 = Math.pow(10, 10);
     const mod2 = Math.pow(10, inputStr.length);
 
     function addOne(v) {
-        list.push(v);
+        list[listLen++] = v;
 
         key2 = (key2 * 10 + v) % mod2;
         if (key2 === inputNum) {
-            part2 = list.length - inputStr.length;
+            part2 = listLen - inputStr.length;
         }
 
         if (part1 === undefined) {
-            key1 = (key1 * 10 + v) % mod1;
-            if (list.length === inputNum + 10) {
-                part1 = key1;
+            if (listLen === inputNum + 10) {
+                part1 = 0;
+                for (let i = listLen - 10; i < listLen; i++) {
+                    part1 = part1 * 10 + list[i];
+                }
             }
         }
     }
@@ -55,8 +59,14 @@ function run(input) {
         }
         addOne(v);
 
-        p1 = (p1 + 1 + list[p1]) % list.length;
-        p2 = (p2 + 1 + list[p2]) % list.length;
+        p1 = (p1 + 1 + list[p1]);
+        while (p1 >= listLen) {
+            p1 = p1 - listLen;
+        }
+        p2 = p2 + 1 + list[p2];
+        while (p2 >= listLen) {
+            p2 = p2 - listLen;
+        }
     }
 
     return [part1, part2];
