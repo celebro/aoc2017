@@ -1,5 +1,9 @@
 const fs = require('fs');
 const sscanf = require('scan.js').scan;
+// @ts-ignore
+const Grid = require('../utils/Grid');
+// @ts-ignore
+const List = require('../utils/LinkedList');
 
 let input = '';
 try {
