@@ -30,14 +30,18 @@ function run(input) {
     let p1 = 0;
     let p2 = 1;
 
-    let key2 = 0;
-    const mod2 = Math.pow(10, inputStr.length);
+    let key = 0;
+    const mask = (1 << (inputStr.length * 4 - 4)) - 1;
+    let inputKey = 0;
+    for (const char of inputStr) {
+        inputKey = (inputKey << 4) + (+char);
+    }
 
     function addOne(v) {
         list[listLen++] = v;
 
-        key2 = (key2 * 10 + v) % mod2;
-        if (key2 === inputNum) {
+        key = ((key & mask) << 4) + v;
+        if (key === inputKey) {
             part2 = listLen - inputStr.length;
         }
 
