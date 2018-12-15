@@ -6,7 +6,7 @@ module.exports = class Grid {
      * @param {any} initialValue
      * @param {any} TypedArray
      */
-    constructor(width, height, initialValue, TypedArray) {
+    constructor(width, height, initialValue, TypedArray = Array) {
         this.grid = new TypedArray(width * height);
         this.width = width;
         this.height = height;

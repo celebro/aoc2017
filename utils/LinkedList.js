@@ -21,8 +21,9 @@ module.exports = class List {
         const tail = this._tail;
         if (tail) {
             this._tail = tail.prev;
-            this._tail.next = null;
-            if (this._tail === null) {
+            if (this._tail) {
+                this._tail.next = null;
+            } else {
                 this._head = null;
             }
             this._size -= 1;
@@ -50,8 +51,9 @@ module.exports = class List {
         const head = this._head;
         if (head) {
             this._head = head.next;
-            this._head.prev = null;
-            if (this._head === null) {
+            if (this._head) {
+                this._head.prev = null;
+            } else {
                 this._tail = null;
             }
             this._size -= 1;
