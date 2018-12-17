@@ -30,9 +30,13 @@ function run(input) {
         still: false
     }));
 
-    function print() {
+    function print(y) {
         const minRow = map.minRow;
         map.minRow = 0; // For printing;
+        const maxRow = map.maxRow;
+        if (y) {
+            map.maxRow = y;
+        }
         map.print((x, col, row) => {
             if (x.still) {
                 return '█';
@@ -47,6 +51,9 @@ function run(input) {
             }
         });
         map.minRow = minRow;
+        if (y) {
+            map.maxRow = maxRow;
+        }
     }
 
     lines.forEach((line) => {
@@ -70,53 +77,51 @@ function run(input) {
         }
     });
 
-    const minRow = map.minRow;
-
+    const firstInputLine = map.minRow;
     // print();
 
 
     function side(dir, x, y) {
         let px = x;
         let py = y;
+        let contained = false;
         while (true) {
-            const loc = map.get(px + dir, py);
+            px = px + dir;
+            const loc = map.get(px, py);
             if (loc.clay) {
-                return 1;
+                contained = true;
+                break;
             } else {
-                if (!loc.wet) {
-                    loc.wet = true;
-                    if (py >= minRow) {
-                        part1++;
-                    }
-                } else {
-                    // print();
-                    // debugger;
-                }
-                const down = map.get(px + dir, py + 1);
+                loc.wet = true;
+                part1++;
+
+                const down = map.get(px, py + 1);
                 if (!down.clay && !down.still) {
-                    stream(px + dir, py);
+                    stream(px, py);
                     if (!down.still) {
                         break;
                     }
                 }
             }
-            px = px + dir;
         }
+        return contained;
     }
 
-    function stream(x, y) {
+    function stream(xx, yy) {
+        let x = xx;
+        let y = yy;
         while (y < map.maxRow) {
             const loc = map.get(x, y + 1);
             if (loc.clay || loc.still) {
+                // Will start spilling left / right
                 break;
             }
 
             if (!loc.wet) {
                 loc.wet = true;
-                if (y + 1 >= minRow) {
-                    part1++;
-                }
+                part1++;
             } else {
+                // Spill already handled by another stream
                 return;
             }
 
@@ -127,26 +132,21 @@ function run(input) {
             return;
         }
 
+        let contained = true;
+        while (contained && y > yy) {
+            contained = side(1, x, y);
+            contained = side(-1, x, y) && contained;
 
-        while (true) {
-            let contained = 0;
-            if (side(1, x, y)) {
-                contained++;
-            }
-            if (side(-1, x, y)) {
-                contained++;
-            }
-
-            if (contained === 2) {
+            if (contained) {
                 part2 += fillLine(map, x, y);
                 y--;
-            } else {
-                break;
             }
         }
     }
 
     stream(500, 0);
+
+    part1 = part1 - firstInputLine + 1; // algo counts from line 1, but task requires count from top most input
 
     // print();
 
@@ -154,32 +154,23 @@ function run(input) {
 }
 
 function fillLine(map, x, y) {
-    let count = 0;
+    map.get(x, y).still = true;
+    const count = 1 + fillSide(map, x, y, 1) + fillSide(map, x, y, -1);
+    return count;
+}
 
-    if (!map.get(x, y).still) {
-        map.get(x, y).still = true;
+function fillSide(map, x, y, dir) {
+    let px = x;
+    let count = 0;
+    while (true) {
+        px = px + dir;
+        const loc = map.get(px, y);
+        if (loc.clay) {
+            break;
+        }
+        loc.still = true;
         count++;
     }
-
-    let px = x;
-    while (!map.get(px + 1, y).clay) {
-        const loc = map.get(px + 1, y);
-        if (!loc.still) {
-            loc.still = true;
-            count++;
-        }
-        px++;
-    }
-    px = x;
-    while (!map.get(px - 1, y).clay) {
-        const loc = map.get(px - 1, y)
-        if (!loc.still) {
-            loc.still = true;
-            count++;
-        }
-        px--;
-    }
-
     return count;
 }
 
