@@ -1,9 +1,4 @@
 const fs = require('fs');
-const sscanf = require('scan.js').scan;
-// @ts-ignore
-const Grid = require('../utils/Grid');
-// @ts-ignore
-const List = require('../utils/LinkedList');
 
 let input = '';
 try {
@@ -72,14 +67,14 @@ function run(input) {
     let samples = [];
     let program = [];
 
+
     // Read
     let ix = 0;
     while (lines[ix] && lines[ix].startsWith('Before')) {
         const sample = {
             before: lines[ix].substring(9, 19).split(', ').map(x => +x),
             after: lines[ix + 2].substring(9, 19).split(', ').map(x => +x),
-            params: lines[ix + 1].split(' ').map(x => +x),
-            matches: [],
+            params: lines[ix + 1].split(' ').map(x => +x)
         };
         samples.push(sample);
         ix += 3;
@@ -91,40 +86,42 @@ function run(input) {
     }
 
 
-    const matchesMap = {};
-
     // Find which opcodes match each opcode numbers
+    const matchesMap = {};
     for (const sample of samples) {
         let { before, after, params } = sample;
+        const matches = [];
 
         for (const opcode of opcodes) {
             const result = before.slice();
             handleInstruction(opcode, params, before, result)
             if (after.join(' ') === result.join(' ')) {
-                sample.matches.push(opcode);
+                matches.push(opcode);
             }
         }
 
-        if (sample.matches.length >= 3) {
+        if (matches.length >= 3) {
             part1++;
         }
 
         const opnum = params[0];
         if (opnum in matchesMap) {
-            matchesMap[opnum] = matchesMap[opnum].filter(x => sample.matches.indexOf(x) !== -1);
+            // Intersection
+            matchesMap[opnum] = matchesMap[opnum].filter(x => matches.indexOf(x) !== -1);
         } else {
-            matchesMap[opnum] = sample.matches.slice();
+            matchesMap[opnum] = matches;
         }
     }
 
+
+    // Match opnums to their opcodes
     const opcodeMap = {};
     const matchedOpcodes = new Set();
 
-    const matchesEntries = Object.entries(matchesMap);
     let change = true;
     while (change) {
         change = false;
-        matchesEntries.forEach(entry => {
+        Object.entries(matchesMap).forEach(entry => {
             let [opnum, matches] = entry;
 
             if (matches.length > 1) {
@@ -138,26 +135,11 @@ function run(input) {
                 matches.length = 0;
                 change = true;
             }
-        })
+        });
     }
 
-    // const instructionMap = {};
-    // const found = new Set();
 
-    // while (true) {
-    //     let sample = samples.find(sample => sample.matches.length === 1);
-    //     if (!sample) {
-    //         break;
-    //     }
-    //     instructionMap[sample.params[0]] = sample.matches[0];
-    //     found.add(sample.matches[0]);
-
-    //     samples.forEach(sample => {
-    //         sample.matches = sample.matches.filter(x => !found.has(x));
-    //     });
-    // }
-
-
+    // Run program
     const registers = [0, 0, 0, 0];
     for (const line of program) {
         const op = opcodeMap[line[0]];
@@ -172,9 +154,5 @@ function run(input) {
 const testResult = run(testInput);
 console.log('test: ', testResult.join(' / '));
 
-console.time('time');
 const result = run(input);
-console.timeEnd('time');
 console.log('result: ', result.join(' / '));
-
-// !333
