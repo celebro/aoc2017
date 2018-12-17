@@ -1,9 +1,6 @@
 const fs = require('fs');
 const sscanf = require('scan.js').scan;
-// @ts-ignore
-const Grid = require('../utils/Grid');
-// @ts-ignore
-const List = require('../utils/LinkedList');
+const Grid = require('../utils/FixedGrid');
 
 let input = '';
 try {
@@ -23,31 +20,33 @@ y=13, x=498..504
 
 
 function run(input) {
-    let part1 = undefined;
-    let part2 = undefined;
+    let part1 = 0;
+    let part2 = 0;
     const lines = input.split('\n').filter(line => line.length);
 
-    const map = new Grid(() => ({
+    const map = new Grid(1000, 2100, () => ({
         clay: false,
         wet: false,
         still: false
     }));
-    map.minRow = 0;
 
     function print() {
+        const minRow = map.minRow;
+        map.minRow = 0; // For printing;
         map.print((x, col, row) => {
-            if (col === 500 && row === 0) {
+            if (x.still) {
+                return '█';
+            } else if (x.wet) {
+                return '|';
+            } else if (col === 500 && row === 0) {
                 return '+';
             } else if (x.clay) {
                 return '#'
-            } else if (x.still) {
-                return '~';
-            } else if (x.wet) {
-                return '|';
             } else {
                 return '.';
             }
         });
+        map.minRow = minRow;
     }
 
     lines.forEach((line) => {
@@ -71,32 +70,59 @@ function run(input) {
         }
     });
 
-    print();
+    const minRow = map.minRow;
 
-    function fillLine(x, y) {
-        map.get(x, y).still = true;
+    // print();
+
+
+    function side(dir, x, y) {
         let px = x;
-        while (!map.get(px + 1, y).clay) {
-            map.get(px + 1, y).still = true;
-            px++;
-        }
-        px = x;
-        while (!map.get(px - 1, y).clay) {
-            map.get(px - 1, y).still = true;
-            px--;
+        let py = y;
+        while (true) {
+            const loc = map.get(px + dir, py);
+            if (loc.clay) {
+                return 1;
+            } else {
+                if (!loc.wet) {
+                    loc.wet = true;
+                    if (py >= minRow) {
+                        part1++;
+                    }
+                } else {
+                    // print();
+                    // debugger;
+                }
+                const down = map.get(px + dir, py + 1);
+                if (!down.clay && !down.still) {
+                    stream(px + dir, py);
+                    if (!down.still) {
+                        break;
+                    }
+                }
+            }
+            px = px + dir;
         }
     }
 
-    part1 = 0;
-
     function stream(x, y) {
-        while (y < map.maxRow && !map.get(x, y + 1).clay) {
-            if (!map.get(x, y + 1).wet) {
-                map.get(x, y + 1).wet = true;
-                part1++;
+        while (y < map.maxRow) {
+            const loc = map.get(x, y + 1);
+            if (loc.clay || loc.still) {
+                break;
             }
+
+            if (!loc.wet) {
+                loc.wet = true;
+                if (y + 1 >= minRow) {
+                    part1++;
+                }
+            } else {
+                return;
+            }
+
             y++;
         }
+
         if (y === map.maxRow) {
             return;
         }
@@ -104,67 +130,63 @@ function run(input) {
 
         while (true) {
             let contained = 0;
-
-            function side(dir) {
-                let px = x;
-                let py = y;
-                while (true) {
-                    const loc = map.get(px + dir, py);
-                    if (loc.clay) {
-                        contained++;
-                        break;
-                    } else {
-                        if (!loc.wet) {
-                            loc.wet = true;
-                            part1++;
-                        }
-                        const down = map.get(px + dir, py + 1);
-                        if (!down.clay && !down.still) {
-                            stream(px + dir, py);
-                            if (!down.still) {
-                                break;
-                            }
-                        }
-                    }
-                    px = px + dir;
-                }
+            if (side(1, x, y)) {
+                contained++;
             }
-
-            side(1);
-            side(-1);
+            if (side(-1, x, y)) {
+                contained++;
+            }
 
             if (contained === 2) {
-                fillLine(x, y);
+                part2 += fillLine(map, x, y);
                 y--;
-            }
-
-            // print();
-            // debugger;
-
-            if (contained !== 2) {
+            } else {
                 break;
             }
         }
-
-        print();
     }
 
     stream(500, 0);
 
-
-
-
-
-
-
+    // print();
 
     return [part1, part2];
+}
+
+function fillLine(map, x, y) {
+    let count = 0;
+
+    if (!map.get(x, y).still) {
+        map.get(x, y).still = true;
+        count++;
+    }
+
+    let px = x;
+    while (!map.get(px + 1, y).clay) {
+        const loc = map.get(px + 1, y);
+        if (!loc.still) {
+            loc.still = true;
+            count++;
+        }
+        px++;
+    }
+    px = x;
+    while (!map.get(px - 1, y).clay) {
+        const loc = map.get(px - 1, y)
+        if (!loc.still) {
+            loc.still = true;
+            count++;
+        }
+        px--;
+    }
+
+    return count;
 }
 
 const testResult = run(testInput);
 console.log('test: ', testResult.join(' / '));
 
+console.time('time');
 const result = run(input);
+console.timeEnd('time');
 console.log('result: ', result.join(' / '));
-
-// !27044
