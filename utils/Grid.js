@@ -59,14 +59,15 @@ module.exports = class Grid {
             for (let i = 0; i < cols; i++) {
                 const _col = col + i;
                 const _row = row + j;
-
-                cb(this.get(col + i, row + j), col + i, row + j);
+                cb(this.get(_col, _row), _col, _row);
             }
         }
     }
 
     print(printer, pad = 1) {
         const leftPad = require('../aoc2017/util/leftPad');
+
+        const rowLabelPad = String(this.maxRow).length;
 
         for (let row = this.minRow; row <= this.maxRow; row++) {
             let line = [];
@@ -80,13 +81,20 @@ module.exports = class Grid {
             }
 
             if (row === this.minRow) {
-                let line = [];
+                let line1 = [];
+                let line2 = [];
+                let line3 = [];
+
                 for (let col = this.minCol; col <= this.maxCol; col++) {
-                    line.push(leftPad(col % 10, pad));
+                    line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
+                    line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
+                    line3.push(leftPad(col % 10, pad));
                 }
-                console.log('    ' + line.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line3.join(''));
             }
-            console.log(leftPad(row + '', 3, ' ') + ' ' + line.join(''));
+            console.log(leftPad(row + '', rowLabelPad, ' ') + ' ' + line.join(''));
         }
         console.log('');
     }

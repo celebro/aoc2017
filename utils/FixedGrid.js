@@ -67,8 +67,8 @@ module.exports = class Grid {
     }
 
     forEach(cb) {
-        for (let col = 0; col < this.width; col++) {
-            for (let row = 0; row <= this.height; row++) {
+        for (let row = 0; row <= this.height; row++) {
+            for (let col = 0; col < this.width; col++) {
                 const value = this.get(col, row, true);
                 if (value !== undefined) {
                     cb(value, col, row);
@@ -107,11 +107,18 @@ module.exports = class Grid {
             }
 
             if (row === this.minRow) {
-                let line = [];
+                let line1 = [];
+                let line2 = [];
+                let line3 = [];
+
                 for (let col = this.minCol; col <= this.maxCol; col++) {
-                    line.push(leftPad(col % 10, pad));
+                    line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
+                    line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
+                    line3.push(leftPad(col % 10, pad));
                 }
-                console.log('    ' + line.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line3.join(''));
             }
             console.log(leftPad(row + '', rowLabelPad, ' ') + ' ' + line.join(''));
         }
