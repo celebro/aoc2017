@@ -59,7 +59,9 @@ module.exports = class Grid {
             for (let i = 0; i < cols; i++) {
                 const _col = col + i;
                 const _row = row + j;
-                cb(this.get(_col, _row), _col, _row);
+                if (_col >= this.minCol && _col <= this.maxCol && _row >= this.minRow && _row <= this.maxRow) {
+                    cb(this.get(_col, _row), _col, _row);
+                }
             }
         }
     }
@@ -67,7 +69,7 @@ module.exports = class Grid {
     print(printer, pad = 1) {
         const leftPad = require('../aoc2017/util/leftPad');
 
-        const rowLabelPad = String(this.maxRow).length;
+        const rowLabelPad = Math.max(String(this.maxRow).length, String(this.minRow).length);
 
         for (let row = this.minRow; row <= this.maxRow; row++) {
             let line = [];
@@ -88,7 +90,7 @@ module.exports = class Grid {
                 for (let col = this.minCol; col <= this.maxCol; col++) {
                     line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
                     line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
-                    line3.push(leftPad(col % 10, pad));
+                    line3.push(leftPad(Math.abs(col % 10), pad));
                 }
                 console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
                 console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
