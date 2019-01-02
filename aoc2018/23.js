@@ -1,9 +1,6 @@
 const fs = require('fs');
 const sscanf = require('scan.js').scan;
-// @ts-ignore
-const Grid = require('../utils/Grid');
-// @ts-ignore
-const List = require('../utils/LinkedList');
+const Queue = require('priorityqueuejs');
 
 let input = '';
 try {
@@ -19,145 +16,166 @@ pos=<10,10,10>, r=5
 `
 .trim();
 
-const deltas = [
-    [1, 0, 0],
-    [-1, 0, 0],
-    [0, 1, 0],
-    [0, -1, 0],
-    [0, 0, 1],
-    [0, 0, -1]
-];
+function distance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z);
+}
+
+function vectorSum(vec) {
+    return Math.abs(vec.x) + Math.abs(vec.y) + Math.abs(vec.z);
+}
+
+function bisectSplit(min, max) {
+    let mid = Math.floor((min + max) / 2);
+
+    if (min === max) {
+        return [[min, max]];
+    }
+
+    return [[min, mid], [mid + 1, max]];
+}
+
+function getClosest(min, max, bot) {
+    let value;
+    if (min <= bot && bot <= max) {
+        value = bot;
+    } else if (bot < min) {
+        value = min;
+    } else {
+        value = max;
+    }
+
+    return value;
+}
 
 function run(input) {
-    let part1 = undefined;
-    let part2 = undefined;
+    let part1 = 0;
+    let part2 = 0;
     const lines = input.split('\n').filter(line => line.length);
 
-    let largest = -1;
-    const bots = [];
-
-    let minx = Infinity;
-    let maxx = -Infinity;
-
-    lines.forEach((line, ix) => {
+    let bots = [];
+    lines.forEach(line => {
         const [x, y, z, r] = sscanf(line, 'pos=<%d,%d,%d>, r=%d');
-        if (largest === -1 || bots[largest].r < r) {
-            largest = ix;
-        }
-        bots.push({ x, y, z, r });
-
-        if (x < minx) {
-            minx = x;
-        }
-        if (x > maxx) {
-            maxx = x;
-        }
+        bots.push({
+            x, y, z, r,
+            intersectCount: 0
+        });
     });
 
-    const strongestBot = bots[largest];
 
-    part1 = 0;
-    bots.forEach(({ x, y, z, r }) => {
-        const d = Math.abs(x - strongestBot.x) + Math.abs(y - strongestBot.y) + Math.abs(z - strongestBot.z);
-        if (d <= strongestBot.r) {
+    const strongestBot = bots.reduce((bot1, bot2) => bot1.r > bot2.r ? bot1: bot2);
+    bots.forEach(bot => {
+        if (distance(bot, strongestBot) <= strongestBot.r) {
             part1++;
         }
-
     });
 
-    function getBest(coordGetter) {
-        let bestx = [];
-        let bestxcount = 0;
 
+    // Determine which bots will be in range of the point we're looking for.
+    // Can be calculated by checking number of intersections of bots' ranges:
+    // If there are X bots in range of the target point, there exists a group
+    // of X bots whose ranges intersect
+    while (true) {
+        for (const bot of bots) {
+            bot.intersectCount = 0;
+        }
         for (let i = 0; i < bots.length; i++) {
             const a = bots[i];
-            let count = 0;
-            for (let j = 0; j < bots.length; j++) {
+            a.intersectCount++; // 'self' intersect, makes inequalities easier later
+            for (let j = i + 1; j < bots.length; j++) {
                 const b = bots[j];
-                // if (Math.abs(a.x - b.x) < a.r) {
-                //     // count++;
-                // }
-                if (Math.abs(coordGetter(a) - coordGetter(b)) < b.r) {
-                    count++;
+                if (distance(a, b) <= a.r + b.r) {
+                    a.intersectCount++;
+                    b.intersectCount++;
                 }
-            }
-            if (count >= bestxcount) {
-                if (count > bestxcount) {
-                    bestx = [];
-                }
-                bestxcount = count;
-                bestx.push(a.x);
             }
         }
 
-        return bestx;
+        // Bucket sort ...
+        const histogram = new Uint16Array(bots.length);
+        for (const bot of bots) {
+            histogram[bot.intersectCount]++;
+        }
+
+        let minIntersections = 0;
+        let sumBots = 0;
+        for (let i = histogram.length - 1; i >= 0; i--) {
+            sumBots += histogram[i];
+            if (sumBots === i) {
+                minIntersections = i;
+                break;
+            } else if (sumBots > i) {
+                // Would be previous histrogram index with any data, but doesn't matter,
+                // since this variable is only used for inequality in the filter
+                minIntersections = i + 1;
+                break;
+            }
+        }
+
+        const newBots = bots.filter(bot => bot.intersectCount >= minIntersections);
+
+        if (newBots.length === bots.length) {
+            break;
+        } else {
+            bots = newBots;
+        }
     }
 
+    const min = { x: -Infinity, y: -Infinity, z: -Infinity };
+    const max = { x:  Infinity, y:  Infinity, z:  Infinity };
 
-    const bestx = getBest(x => x.x);
-    const besty = getBest(x => x.y);
-    const bestz = getBest(x => x.z);
+    // Min bounding box encompassing all bots
+    for (const bot of bots) {
+        min.x = Math.max(min.x, bot.x - bot.r);
+        min.y = Math.max(min.y, bot.y - bot.r);
+        min.z = Math.max(min.z, bot.z - bot.r);
+        max.x = Math.min(max.x, bot.x + bot.r);
+        max.y = Math.min(max.y, bot.y + bot.r);
+        max.z = Math.min(max.z, bot.z + bot.r);
+    }
 
-    let bestPoint = null;
-    let bestCount = 0;
+    // console.table([min, max]);
+    // console.log(min.x + min.y + min.z, max.x + max.y + max.z);
 
-    for (let x of bestx) {
-        for (let y of besty) {
-            for (let z of bestz) {
-                let count = 0;
-                for (let bot of bots) {
-                    const d = Math.abs(x - bot.x) + Math.abs(y - bot.y) + Math.abs(z - bot.z);
-                    if (d <= bot.r) {
-                        count++;
-                    }
-                }
-                if (count >= bestCount) {
-                    bestPoint = { x, y, z };
-                    bestCount = count;
 
-                    let changed = true;
-                    while (changed) {
-                        changed = false;
-                        for (let [dx, dy, dz] of deltas) {
-                            let x = bestPoint.x + dx;
-                            let y = bestPoint.y + dy;
-                            let z = bestPoint.z + dz;
+    const queue = new Queue((a, b) => vectorSum(b.min) + vectorSum(b.max) - vectorSum(a.min) - vectorSum(a.max));
+    queue.enq({ min, max });
 
-                            let count = 0;
-                            for (let bot of bots) {
-                                const d = Math.abs(x - bot.x) + Math.abs(y - bot.y) + Math.abs(z - bot.z);
-                                if (d <= bot.r) {
-                                    count++;
-                                }
-                            }
+    let found = false;
+    while (queue.size() > 0 && !found) {
+        const { min, max } = queue.deq();
+        for (const [x1, x2] of bisectSplit(min.x, max.x)) {
+            for (const [y1, y2] of bisectSplit(min.y, max.y)) {
+                for (const [z1, z2] of bisectSplit(min.z, max.z)) {
+                    const min = { x: x1, y: y1, z: z1 };
+                    const max = { x: x2, y: y2, z: z2 };
 
-                            console.log(bestCount, dx, dy, dz, count);
+                    let valid = bots.every(bot => {
+                        let x = getClosest(min.x, max.x, bot.x);
+                        let y = getClosest(min.y, max.y, bot.y);
+                        let z = getClosest(min.z, max.z, bot.z);
 
-                            if (count > bestCount) {
-                                bestPoint = { x, y, z };
-                                bestCount = count;
-                                console.log(bestPoint, bestCount, Math.abs(bestPoint.x) + Math.abs(bestPoint.y) + Math.abs(bestPoint.z));
-                                changed = true;
-                                break;
-                            }
+                        return Math.abs(x - bot.x) + Math.abs(y - bot.y) + Math.abs(z - bot.z) <= bot.r;
+                    });
+
+                    if (valid) {
+                        if (x1 === x2 && y1 === y2 && z1 === z2 && !part2) {
+                            found = true;
+                            part2 = vectorSum(min);
                         }
+                        queue.enq({ min, max });
                     }
                 }
             }
         }
     }
-
-    console.log(bestPoint, bestCount);
-    part2 = Math.abs(bestPoint.x) + Math.abs(bestPoint.y) + Math.abs(bestPoint.z);
-
 
     return [part1, part2];
 }
 
-// const testResult = run(testInput);
-// console.log('test: ', testResult.join(' / '));
+const testResult = run(testInput);
+console.log('test: ', testResult.join(' / '));
 
+console.time('time');
 const result = run(input);
+console.timeEnd('time');
 console.log('result: ', result.join(' / '));
-
-// too high 128139428
