@@ -66,7 +66,7 @@ module.exports = class Grid {
         }
     }
 
-    print(printer, pad = 1) {
+    print(printer, pad = 1, empty = ' ') {
         const leftPad = require('../aoc2017/util/leftPad');
 
         const rowLabelPad = Math.max(String(this.maxRow).length, String(this.minRow).length);
@@ -78,7 +78,7 @@ module.exports = class Grid {
                 if (node !== undefined) {
                     line.push(leftPad(printer(node, col, row), pad));
                 } else {
-                    line.push(' '.repeat(pad));
+                    line.push(empty.repeat(pad));
                 }
             }
 
@@ -100,4 +100,40 @@ module.exports = class Grid {
         }
         console.log('');
     }
-}
+
+    print2(printer, pad = 1, empty = ' ') {
+        const leftPad = require('../aoc2017/util/leftPad');
+
+        const rowLabelPad = Math.max(String(this.maxRow).length, String(this.minRow).length);
+
+        for (let row = this.maxRow; row >= this.minRow; row--) {
+            let line = [];
+            for (let col = this.minCol; col <= this.maxCol; col++) {
+                const node = this.get(col, row);
+                if (node !== undefined) {
+                    line.push(leftPad(printer(node, col, row), pad));
+                } else {
+                    line.push(empty.repeat(pad));
+                }
+            }
+
+            console.log(leftPad(row + '', rowLabelPad, ' ') + ' ' + line.join(''));
+
+            if (row === this.minRow) {
+                let line1 = [];
+                let line2 = [];
+                let line3 = [];
+
+                for (let col = this.minCol; col <= this.maxCol; col++) {
+                    line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
+                    line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
+                    line3.push(leftPad(Math.abs(col % 10), pad));
+                }
+                console.log(' '.repeat(rowLabelPad + 1) + line3.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
+                console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
+            }
+        }
+        console.log('');
+    }
+};
