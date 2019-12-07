@@ -10,8 +10,7 @@ try {
 function getAmpOutput(code, permutation) {
     let lastOutput = 0;
     for (let i = 0; i < 5; i++) {
-        const computer = new Computer(code);
-        lastOutput = computer.runWithInput([permutation[i], lastOutput]);
+        lastOutput = Computer.runWithInput(code, [permutation[i], lastOutput]);
     }
     return lastOutput;
 }

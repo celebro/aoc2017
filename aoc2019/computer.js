@@ -15,6 +15,18 @@ const STATE_HALT = 2;
 const STATE_INPUT = 3;
 
 module.exports = class Computer {
+    /**
+     *
+     * @param {string} code
+     * @param {number[]} input
+     */
+    static runWithInput(code, input) {
+        const computer = new Computer(code);
+        computer.addInput(...input);
+        const output = computer.run();
+        return output[output.length - 1];
+    }
+
     constructor(code) {
         this.mem = code.split(',').map(Number);
 
@@ -73,12 +85,6 @@ module.exports = class Computer {
             parameters.push(paramValue);
         }
         return parameters;
-    }
-
-    runWithInput(input) {
-        this.addInput(...input);
-        const output = this.run();
-        return output[output.length - 1];
     }
 
     run() {
