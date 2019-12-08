@@ -1,3 +1,5 @@
+const { underline, overline } = require('./string');
+
 module.exports = class Grid {
     constructor(emptyValueGetter) {
         this.grid = {};
@@ -94,9 +96,9 @@ module.exports = class Grid {
                 }
                 console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
                 console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
-                console.log(' '.repeat(rowLabelPad + 1) + line3.join(''));
+                console.log(underline(' '.repeat(rowLabelPad + 1) + line3.join('')));
             }
-            console.log(leftPad(row + '', rowLabelPad, ' ') + ' ' + line.join(''));
+            console.log(leftPad(row + '', rowLabelPad, ' ') + '│' + line.join(''));
         }
         console.log('');
     }
@@ -117,7 +119,7 @@ module.exports = class Grid {
                 }
             }
 
-            console.log(leftPad(row + '', rowLabelPad, ' ') + ' ' + line.join(''));
+            console.log(leftPad(row + '', rowLabelPad, ' ') + '│' + line.join(''));
 
             if (row === this.minRow) {
                 let line1 = [];
@@ -129,7 +131,7 @@ module.exports = class Grid {
                     line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
                     line3.push(leftPad(Math.abs(col % 10), pad));
                 }
-                console.log(' '.repeat(rowLabelPad + 1) + line3.join(''));
+                console.log(overline(' '.repeat(rowLabelPad + 1) + line3.join('')));
                 console.log(' '.repeat(rowLabelPad + 1) + line2.join(''));
                 console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
             }

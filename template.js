@@ -8,13 +8,14 @@ const List = require('../utils/LinkedList');
 let input = '';
 try {
     input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
-} catch(e) {}
+} catch (e) {}
 const testInput = `
 
-`
-.trim();
+`.trim();
 
-
+/**
+ * @param {string} input
+ */
 function run(input) {
     let part1 = undefined;
     let part2 = undefined;
