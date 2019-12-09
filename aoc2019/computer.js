@@ -1,15 +1,3 @@
-const parametersMap = {
-    '1': 3,
-    '2': 3,
-    '3': 1,
-    '4': 1,
-    '5': 2,
-    '6': 2,
-    '7': 3,
-    '8': 3,
-    '99': 0
-};
-
 const STATE_OK = 1;
 const STATE_HALT = 2;
 const STATE_INPUT = 3;
@@ -18,16 +6,32 @@ module.exports = class Computer {
     /**
      *
      * @param {string} code
-     * @param {number[]} input
+     * @param {number[]} [input]
      */
     static runWithInput(code, input) {
-        const computer = new Computer(code);
-        computer.addInput(...input);
-        const output = computer.run();
+        const output = Computer.runWithInputFull(code, input);
         return output[output.length - 1];
     }
 
+    /**
+     *
+     * @param {string} code
+     * @param {number[]} [input]
+     */
+    static runWithInputFull(code, input) {
+        const computer = new Computer(code);
+        if (input) {
+            computer.addInput(...input);
+        }
+        const output = computer.run();
+        if (!computer.isHalted) {
+            throw new Error('ERR: computer waiting for input');
+        }
+        return output;
+    }
+
     constructor(code) {
+        /** @type number[] */
         this.mem = code.split(',').map(Number);
 
         /** @type number[] */
@@ -35,7 +39,11 @@ module.exports = class Computer {
         /** @type number[] */
         this.output = [];
 
+        /** @type number */
         this.ip = 0;
+        /** @type number */
+        this.relativeBase = 0;
+        /** @type number */
         this.state = STATE_OK;
     }
 
@@ -60,31 +68,57 @@ module.exports = class Computer {
     }
 
     /**
-     * @param {number} opcode
-     * @param {number} instruction
+     * @private
+     * @param {*} modes
      */
-    __getParameters(opcode, instruction) {
-        const numParameters = parametersMap[opcode];
-        const parameters = [];
-        for (let i = 0; i < numParameters; i++) {
-            const mode = instruction % 10;
-            instruction = (instruction / 10) | 0;
-
-            const param = this.mem[this.ip + i + 1];
-            let paramValue;
-            switch (mode) {
-                case 0:
-                    paramValue = this.mem[param];
-                    break;
-                case 1:
-                    paramValue = param;
-                    break;
-                default:
-                    throw new Error('ERR: unknown param mode');
+    getParamParser(modes) {
+        const computer = this;
+        return {
+            /**
+             * @param {number} position
+             */
+            read: function(position) {
+                const mode = ((modes / 10 ** position) | 0) % 10;
+                const param = computer.read(computer.ip + position + 1);
+                if (mode === 0) {
+                    return computer.read(param);
+                }
+                if (mode === 1) {
+                    return param;
+                }
+                if (mode === 2) {
+                    return computer.read(param + computer.relativeBase);
+                }
+            },
+            /**
+             * @param {number} position
+             */
+            write: function(position) {
+                const mode = ((modes / 10 ** position) | 0) % 10;
+                const param = computer.read(computer.ip + position + 1);
+                if (mode === 0) {
+                    return param;
+                }
+                if (mode === 1) {
+                    throw new Error('ERR: immediate output parameter is illegal');
+                }
+                if (mode === 2) {
+                    return param + computer.relativeBase;
+                }
             }
-            parameters.push(paramValue);
+        };
+    }
+
+    /**
+     * @private
+     * @param {number} address
+     */
+    read(address) {
+        if (address < 0) {
+            throw new Error('ERR: negative address');
         }
-        return parameters;
+        let value = this.mem[address];
+        return value === undefined ? 0 : value;
     }
 
     run() {
@@ -98,62 +132,69 @@ module.exports = class Computer {
         }
 
         while (true) {
-            const ip = this.ip;
-            let instruction = mem[ip];
+            let instruction = this.read(this.ip);
             const opcode = instruction % 100;
-            instruction = (instruction / 100) | 0;
+            const modes = (instruction / 100) | 0;
+            const p = this.getParamParser(modes);
 
             if (opcode === 99) {
                 this.state = STATE_HALT;
                 break;
             }
 
-            const parameters = this.__getParameters(opcode, instruction);
-
-            let jumpTo = undefined;
             switch (opcode) {
                 case 1: // add
-                    mem[mem[ip + 3]] = parameters[0] + parameters[1];
+                    mem[p.write(2)] = p.read(0) + p.read(1);
+                    this.ip += 4;
                     break;
                 case 2: // multiply
-                    mem[mem[ip + 3]] = parameters[0] * parameters[1];
+                    mem[p.write(2)] = p.read(0) * p.read(1);
+                    this.ip += 4;
                     break;
                 case 3: // input
                     if (this.input.length > 0) {
-                        mem[mem[ip + 1]] = this.input.shift();
+                        mem[p.write(0)] = this.input.shift();
+                        this.ip += 2;
                     } else {
                         this.state = STATE_INPUT;
                     }
                     break;
                 case 4: // output
-                    this.output.push(parameters[0]);
+                    this.output.push(p.read(0));
+                    this.ip += 2;
                     break;
                 case 5: // jump-if-true
-                    if (parameters[0] !== 0) {
-                        jumpTo = parameters[1];
+                    if (p.read(0) !== 0) {
+                        this.ip = p.read(1);
+                    } else {
+                        this.ip += 3;
                     }
                     break;
                 case 6: // jump-if-false
-                    if (parameters[0] === 0) {
-                        jumpTo = parameters[1];
+                    if (p.read(0) === 0) {
+                        this.ip = p.read(1);
+                    } else {
+                        this.ip += 3;
                     }
                     break;
                 case 7: // less than
-                    mem[mem[ip + 3]] = parameters[0] < parameters[1] ? 1 : 0;
+                    mem[p.write(2)] = p.read(0) < p.read(1) ? 1 : 0;
+                    this.ip += 4;
                     break;
                 case 8: // equals
-                    mem[mem[ip + 3]] = parameters[0] === parameters[1] ? 1 : 0;
+                    mem[p.write(2)] = p.read(0) === p.read(1) ? 1 : 0;
+                    this.ip += 4;
+                    break;
+                case 9: // adjust relative base
+                    this.relativeBase = this.relativeBase + p.read(0);
+                    this.ip += 2;
                     break;
                 default:
-                    throw new Error('ERR: unknown opcode');
+                    throw new Error(`ERR: unknown opcode ${opcode}`);
             }
 
             if (this.state === STATE_INPUT) {
                 break;
-            } else if (jumpTo == undefined) {
-                this.ip = ip + 1 + parameters.length;
-            } else {
-                this.ip = jumpTo;
             }
         }
 

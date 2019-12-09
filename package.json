@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cli-spinner": "^0.2.7",
-    "eslint": "^5.10.0",
+    "cli-spinner": "^0.2.10",
+    "eslint": "^6.7.2",
     "md5": "^2.2.1",
     "priorityqueuejs": "^1.0.0",
     "scan.js": "^1.0.1"
