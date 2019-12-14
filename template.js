@@ -9,9 +9,11 @@ let input = '';
 try {
     input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
 } catch (e) {}
-const testInput = `
+const testInputs = [
+    `
 
-`.trim();
+`
+].map(x => x.trim());
 
 /**
  * @param {string} input
@@ -28,8 +30,10 @@ function run(input) {
     return [part1, part2];
 }
 
-const testResult = run(testInput);
-console.log('test: ', testResult.join(' / '));
+for (const testInput of testInputs) {
+    const testResult = run(testInput);
+    console.log('test: ', testResult.join(' / '));
+}
 
 const result = run(input);
 console.log('result: ', result.join(' / '));
