@@ -1,6 +1,18 @@
 const { underline, overline } = require('./string');
 
+/**
+ * @template T
+ */
 module.exports = class Grid {
+    /**
+     *
+     * @callback EmptyValueGetter
+     * @param {number} col
+     * @param {number} row
+     * @returns {T}
+     *
+     * @param {EmptyValueGetter} [emptyValueGetter]
+     */
     constructor(emptyValueGetter) {
         this.grid = {};
         this.emptyValueGetter = emptyValueGetter;
@@ -10,6 +22,12 @@ module.exports = class Grid {
         this.maxCol = -Infinity;
     }
 
+    /**
+     *
+     * @param {number} col
+     * @param {number} row
+     * @returns {T}
+     */
     get(col, row) {
         if (this.grid[row] !== undefined) {
             if (this.grid[row][col] != undefined) {
@@ -26,6 +44,12 @@ module.exports = class Grid {
         return undefined;
     }
 
+    /**
+     *
+     * @param {number} col
+     * @param {number} row
+     * @param {T} value
+     */
     set(col, row, value) {
         if (this.grid[row] === undefined) {
             this.grid[row] = {};
@@ -48,6 +72,15 @@ module.exports = class Grid {
         }
     }
 
+    /**
+     * @callback ForEachCallback
+     * @param {T} value
+     * @param {number} col
+     * @param {number} row
+     * @returns {void}
+     *
+     * @param {ForEachCallback} cb
+     */
     forEach(cb) {
         for (let row = this.minRow; row <= this.maxRow; row++) {
             for (let col = this.minCol; col <= this.maxCol; col++) {
@@ -56,6 +89,13 @@ module.exports = class Grid {
         }
     }
 
+    /**
+     * @param {number} col
+     * @param {number} row
+     * @param {number} cols
+     * @param {number} rows
+     * @param {ForEachCallback} cb
+     */
     forSlice(col, row, cols, rows, cb) {
         for (let j = 0; j < rows; j++) {
             for (let i = 0; i < cols; i++) {
@@ -68,6 +108,17 @@ module.exports = class Grid {
         }
     }
 
+    /**
+     * @callback PrinterCallback
+     * @param {T} value
+     * @param {number} col
+     * @param {number} row
+     * @returns {void}s
+     *
+     * @param {PrinterCallback} printer
+     * @param {number} pad
+     * @param {string} empty
+     */
     print(printer, pad = 1, empty = ' ') {
         const leftPad = require('../aoc2017/util/leftPad');
 
@@ -103,6 +154,11 @@ module.exports = class Grid {
         console.log('');
     }
 
+    /**
+     * @param {PrinterCallback} printer
+     * @param {number} pad
+     * @param {string} empty
+     */
     print2(printer, pad = 1, empty = ' ') {
         const leftPad = require('../aoc2017/util/leftPad');
 

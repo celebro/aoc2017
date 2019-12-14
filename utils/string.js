@@ -1,5 +1,4 @@
 /**
- *
  * @param {string} string
  */
 module.exports.underline = function underline(string) {
@@ -9,6 +8,9 @@ module.exports.underline = function underline(string) {
         .join('');
 };
 
+/**
+ * @param {string} string
+ */
 module.exports.overline = function overline(string) {
     return string
         .split('')
@@ -19,6 +21,9 @@ module.exports.overline = function overline(string) {
 // for (let i = parseInt('2500', 16); i <= parseInt('2600', 16); i++) {
 //     console.log(i.toString(16), String.fromCharCode(i));
 // }
+
+// '░',
+// '█',
 
 const map = {
     '2500': '─',

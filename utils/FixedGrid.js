@@ -5,7 +5,6 @@ const { underline, overline } = require('./string');
  */
 module.exports = class Grid {
     /**
-     *
      * @param {number} width
      * @param {number} height
      * @param {T} initialValue
@@ -31,7 +30,6 @@ module.exports = class Grid {
     }
 
     /**
-     *
      * @param {number} col
      * @param {number} row
      * @param {boolean} [ignoreDefault]
@@ -48,7 +46,6 @@ module.exports = class Grid {
     }
 
     /**
-     *
      * @param {number} col
      * @param {number} row
      * @param {T} value
@@ -92,7 +89,6 @@ module.exports = class Grid {
     }
 
     /**
-     *
      * @param {number} col
      * @param {number} row
      * @param {number} cols

@@ -1,14 +1,26 @@
+/**
+ * @template T
+ */
 module.exports = class Queue {
+    /**
+     * @param {number} clearAfter
+     */
     constructor(clearAfter = 10000) {
         this.clearAfter = clearAfter;
         this.queue = [];
         this.ix = 0;
     }
 
+    /**
+     * @param {T} value
+     */
     enq(value) {
         this.queue.push(value);
     }
 
+    /**
+     * @returns {T}
+     */
     deq() {
         if (this.queue.length > 0) {
             const value = this.queue[this.ix++];
@@ -22,13 +34,19 @@ module.exports = class Queue {
         }
     }
 
+    /**
+     * @returns {T}
+     */
     peek() {
         if (this.queue.length > 0) {
             return this.queue[this.ix];
         }
     }
 
+    /**
+     * @returns {number}
+     */
     size() {
         return this.queue.length - this.ix;
     }
-}
+};

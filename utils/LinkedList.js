@@ -1,3 +1,6 @@
+/**
+ * @template T
+ */
 module.exports = class List {
     constructor() {
         this._head = null;
@@ -5,6 +8,9 @@ module.exports = class List {
         this._size = 0;
     }
 
+    /**
+     * @param {T} value
+     */
     push(value) {
         const node = createNode(value);
         if (this._tail) {
@@ -17,6 +23,9 @@ module.exports = class List {
         this._size += 1;
     }
 
+    /**
+     * @returns {T}
+     */
     pop() {
         const tail = this._tail;
         if (tail) {
@@ -34,6 +43,9 @@ module.exports = class List {
         }
     }
 
+    /**
+     * @param {T} value
+     */
     unshift(value) {
         const node = createNode(value);
         const head = this._head;
@@ -47,6 +59,9 @@ module.exports = class List {
         this._size += 1;
     }
 
+    /**
+     * @returns {T}
+     */
     shift() {
         const head = this._head;
         if (head) {
@@ -64,7 +79,6 @@ module.exports = class List {
     }
 
     /**
-     *
      * @param {number} steps
      */
     rotate(steps) {
@@ -98,7 +112,7 @@ module.exports = class List {
             }
         }
     }
-}
+};
 
 function createNode(value) {
     return {

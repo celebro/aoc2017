@@ -1,3 +1,8 @@
+/**
+ * @template T
+ * @param {T[]} permutation
+ * @yields {T[]}
+ */
 module.exports.permuteGenerator = function* permute(permutation) {
     var length = permutation.length,
         c = Array(length).fill(0),
@@ -10,7 +15,9 @@ module.exports.permuteGenerator = function* permute(permutation) {
         if (c[i] < i) {
             k = i % 2 && c[i];
             p = permutation[i];
+            // eslint-disable-next-line require-atomic-updates
             permutation[i] = permutation[k];
+            // eslint-disable-next-line require-atomic-updates
             permutation[k] = p;
             ++c[i];
             i = 1;
@@ -22,6 +29,11 @@ module.exports.permuteGenerator = function* permute(permutation) {
     }
 };
 
+/**
+ * @template T
+ * @param {T[]} permutation
+ * @returns{T[][]}
+ */
 module.exports.permute = function permute(permutation) {
     var length = permutation.length,
         result = [permutation.slice()],
