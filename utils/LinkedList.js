@@ -112,6 +112,10 @@ module.exports = class List {
             }
         }
     }
+
+    isEmpty() {
+        return this._size === 0;
+    }
 };
 
 function createNode(value) {

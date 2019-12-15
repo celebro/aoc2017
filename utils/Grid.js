@@ -141,8 +141,8 @@ module.exports = class Grid {
                 let line3 = [];
 
                 for (let col = this.minCol; col <= this.maxCol; col++) {
-                    line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
-                    line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
+                    line1.push(leftPad(col % 100 === 0 ? ~~(Math.abs(col) / 100) % 10 : ' ', pad));
+                    line2.push(leftPad(col % 10 === 0 ? ~~(Math.abs(col) / 10) % 10 : ' ', pad));
                     line3.push(leftPad(Math.abs(col % 10), pad));
                 }
                 console.log(' '.repeat(rowLabelPad + 1) + line1.join(''));
@@ -183,8 +183,8 @@ module.exports = class Grid {
                 let line3 = [];
 
                 for (let col = this.minCol; col <= this.maxCol; col++) {
-                    line1.push(leftPad(col % 100 === 0 ? ~~(col / 100) % 10 : ' ', pad));
-                    line2.push(leftPad(col % 10 === 0 ? ~~(col / 10) % 10 : ' ', pad));
+                    line1.push(leftPad(col % 100 === 0 ? ~~(Math.abs(col) / 100) % 10 : ' ', pad));
+                    line2.push(leftPad(col % 10 === 0 ? ~~(Math.abs(col) / 10) % 10 : ' ', pad));
                     line3.push(leftPad(Math.abs(col % 10), pad));
                 }
                 console.log(overline(' '.repeat(rowLabelPad + 1) + line3.join('')));
