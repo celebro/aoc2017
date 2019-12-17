@@ -1,5 +1,5 @@
 const fs = require('fs');
-const rotate = require('../utils/rotate');
+const rotate = require('../utils/rotate').rotate;
 const Computer = require('./computer');
 const Grid = require('../utils/Grid');
 
