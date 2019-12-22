@@ -59,6 +59,24 @@ module.exports = class Computer {
     }
 
     /**
+     * @param  {...string} ascii
+     */
+    addAscii(...ascii) {
+        for (const str of ascii) {
+            const lines = str
+                .split('\n')
+                .map(x => x.trim())
+                .filter(x => x.length && !x.startsWith('//'));
+            for (const line of lines) {
+                for (const char of line) {
+                    const code = char.codePointAt(0);
+                    this.addInput(code);
+                }
+                this.addInput('\n'.codePointAt(0));
+            }
+        }
+    }
+    /**
      * @returns {number[]}
      */
     flushOutput() {
