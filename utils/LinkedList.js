@@ -24,6 +24,13 @@ module.exports = class List {
     }
 
     /**
+     * @param {T} value
+     */
+    enq(value) {
+        this.push(value);
+    }
+
+    /**
      * @returns {T}
      */
     pop() {
@@ -76,6 +83,13 @@ module.exports = class List {
         } else {
             return undefined;
         }
+    }
+
+    /**
+     * @returns {T}
+     */
+    deq() {
+        return this.shift();
     }
 
     /**

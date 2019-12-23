@@ -49,4 +49,11 @@ module.exports = class Queue {
     size() {
         return this.queue.length - this.ix;
     }
+
+    /**
+     * @returns {boolean}
+     */
+    isEmpty() {
+        return this.size() === 0;
+    }
 };
