@@ -15,6 +15,8 @@ const testInputs = [
 `
 ].map(x => x.trim());
 
+// const neighbours = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
 /**
  * @param {string} input
  */
@@ -31,8 +33,10 @@ function run(input) {
 }
 
 for (const testInput of testInputs) {
-    const testResult = run(testInput);
-    console.log('test: ', testResult.join(' / '));
+    if (testInput) {
+        const testResult = run(testInput);
+        console.log('test: ', testResult.join(' / '));
+    }
 }
 
 const result = run(input);

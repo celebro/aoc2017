@@ -7,10 +7,10 @@ module.exports = class Grid {
     /**
      * @param {number} width
      * @param {number} height
-     * @param {T} initialValue
+     * @param {T | ((x: number, y: number) => T)} initialValue
      * @param {any} TypedArray
      */
-    constructor(width, height, initialValue, TypedArray = Array) {
+    constructor(width, height, initialValue = undefined, TypedArray = Array) {
         this.grid = new TypedArray(width * height);
         this.width = width;
         this.height = height;
@@ -22,6 +22,8 @@ module.exports = class Grid {
 
         if (initialValue !== undefined) {
             if (typeof initialValue === 'function') {
+                /** @type {(x: number, y: number) => T} */
+                // @ts-ignore
                 this.initialValue = initialValue;
             } else {
                 this.grid.fill(initialValue);
@@ -36,6 +38,10 @@ module.exports = class Grid {
      * @returns {T}
      */
     get(col, row, ignoreDefault) {
+        if (col < 0 || col >= this.width || row < 0 || row >= this.height) {
+            return undefined;
+        }
+
         const index = row * this.width + col;
 
         if (this.grid[index] === undefined && ignoreDefault !== true && this.initialValue) {

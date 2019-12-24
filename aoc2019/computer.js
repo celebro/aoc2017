@@ -139,7 +139,7 @@ module.exports = class Computer {
         return value === undefined ? 0 : value;
     }
 
-    run() {
+    run({ pauseAfterOutputs }) {
         const mem = this.mem;
 
         if (this.state === STATE_HALT) {
@@ -214,6 +214,9 @@ module.exports = class Computer {
             if (this.state === STATE_INPUT) {
                 break;
             }
+            if (pauseAfterOutputs > 0 && this.output.length === pauseAfterOutputs) {
+                break;
+            }
         }
 
         return this.flushOutput();
@@ -221,5 +224,9 @@ module.exports = class Computer {
 
     get isHalted() {
         return this.state === STATE_HALT;
+    }
+
+    get isWaitingInput() {
+        return this.state === STATE_INPUT;
     }
 };
