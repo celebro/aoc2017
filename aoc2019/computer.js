@@ -47,6 +47,27 @@ module.exports = class Computer {
         this.state = STATE_OK;
     }
 
+    saveState() {
+        const state = {
+            mem: this.mem.slice(),
+            input: this.input.slice(),
+            output: this.output.slice(),
+            ip: this.ip,
+            relativeBase: this.relativeBase,
+            state: this.state
+        };
+        return state;
+    }
+
+    restoreState(state) {
+        this.mem = state.mem.slice();
+        this.input = state.input.slice();
+        this.output = state.output.slice();
+        this.ip = state.ip;
+        this.relativeBase = state.relativeBase;
+        this.state = state.state;
+    }
+
     /**
      *
      * @param  {...number} inputValues
@@ -139,7 +160,7 @@ module.exports = class Computer {
         return value === undefined ? 0 : value;
     }
 
-    run({ pauseAfterOutputs }) {
+    run({ pauseAfterOutputs } = { pauseAfterOutputs: undefined }) {
         const mem = this.mem;
 
         if (this.state === STATE_HALT) {
@@ -220,6 +241,17 @@ module.exports = class Computer {
         }
 
         return this.flushOutput();
+    }
+
+    runGetAscii() {
+        const output = this.run();
+        let strOutput = output.map(x => String.fromCodePoint(x)).join('');
+        return strOutput;
+    }
+
+    runPrintAscii() {
+        let strOutput = this.runGetAscii();
+        console.log(strOutput);
     }
 
     get isHalted() {

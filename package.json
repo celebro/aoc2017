@@ -13,6 +13,7 @@
     "eslint": "^6.7.2",
     "md5": "^2.2.1",
     "priorityqueuejs": "^1.0.0",
+    "readline-sync": "^1.4.10",
     "scan.js": "^1.0.1"
   }
 }
