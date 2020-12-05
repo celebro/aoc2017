@@ -8,15 +8,13 @@ const List = require('../utils/LinkedList');
 let input = '';
 try {
     input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
-} catch(e) {}
+} catch (e) {}
 const testInput = `
 ""
 "abc"
 "aaa\\"aaa"
 "\\x27"
-`
-.trim();
-
+`.trim();
 
 function run(input) {
     let part1 = undefined;
@@ -32,8 +30,23 @@ function run(input) {
         sum2 += line2.length;
     });
 
-    debugger;
     part1 = sum1 - sum2;
+
+    sum2 = 0;
+    lines.forEach(line => {
+        line.split('').forEach(char => {
+            if (char === '"') {
+                sum2 += 2;
+            } else if (char === '\\') {
+                sum2 += 2;
+            } else {
+                sum2 += 1;
+            }
+        });
+        sum2 += 2;
+    });
+
+    part2 = sum2 - sum1;
 
     return [part1, part2];
 }

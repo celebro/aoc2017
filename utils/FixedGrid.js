@@ -107,7 +107,7 @@ module.exports = class Grid {
                 const _col = col + i;
                 const _row = row + j;
 
-                if (_col < this.width && _row < this.height) {
+                if (_col < this.width && _row < this.height && _col >= 0 && _row >= 0) {
                     cb(this.get(col + i, row + j), col + i, row + j);
                 }
             }
