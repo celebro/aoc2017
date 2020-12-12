@@ -60,7 +60,6 @@ function run(input) {
     for (let i = 1; i < ids.length - 1; i++) {
         if (!ids[i] && ids[i - 1] && ids[i + 1]) {
             part2 = i;
-            console.log(i);
         }
     }
 
