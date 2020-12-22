@@ -3,8 +3,11 @@
  */
 module.exports = class List {
     constructor() {
+        /** @type {ReturnType<createNode>} */
         this._head = null;
+        /** @type {ReturnType<createNode>} */
         this._tail = null;
+        /** @type {number} */
         this._size = 0;
     }
 

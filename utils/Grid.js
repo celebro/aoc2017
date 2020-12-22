@@ -119,7 +119,7 @@ module.exports = class Grid {
      * @param {number} pad
      * @param {string} empty
      */
-    print(printer, pad = 1, empty = ' ') {
+    print(printer = (x) => x, pad = 1, empty = ' ') {
         const leftPad = require('../aoc2017/util/leftPad');
 
         const rowLabelPad = Math.max(String(this.maxRow).length, String(this.minRow).length);
