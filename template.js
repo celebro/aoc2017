@@ -1,8 +1,6 @@
 const fs = require('fs');
 const sscanf = require('scan.js').scan;
-// @ts-ignore
 const Grid = require('../utils/Grid');
-// @ts-ignore
 const List = require('../utils/LinkedList');
 
 let input = '';
@@ -13,7 +11,7 @@ const testInputs = [
     `
 
 `
-].map(x => x.trim());
+].map((x) => x.trim());
 
 // const neighbours = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
@@ -23,7 +21,7 @@ const testInputs = [
 function run(input) {
     let part1 = undefined;
     let part2 = undefined;
-    const lines = input.split('\n').filter(line => line.length);
+    const lines = input.split('\n').filter((line) => line.length);
 
     lines.forEach((line, ix) => {
         const [] = sscanf(line, '');
