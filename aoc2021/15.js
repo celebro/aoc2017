@@ -69,9 +69,19 @@ function run(input) {
 }
 
 function find(map) {
-    const q = new Queue((a, b) => b.total - a.total);
+    function hevristics(node) {
+        let v = node.total;
+        v += map.maxCol - node.m.x + (map.maxRow - node.m.y);
+        return v;
+    }
+
+    const q = new Queue((a, b) => {
+        return hevristics(b) - hevristics(a);
+    });
 
     q.enq(toNode(map.get(0, 0)));
+
+    let visits = 0;
 
     while (!q.isEmpty()) {
         const node = q.deq();
@@ -80,12 +90,20 @@ function find(map) {
             continue;
         }
         m.visited = true;
+        m.total = node.total;
+        visits++;
+
+        map.print((x) => {
+            return x.visited ? x.total : ' ';
+        }, 3);
+        debugger;
 
         const x = m.x;
         const y = m.y;
         const total = node.total;
 
         if (x === map.maxCol && y === map.maxRow) {
+            console.log(visits);
             return total;
         }
 
