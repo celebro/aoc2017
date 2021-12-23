@@ -160,16 +160,16 @@ function run(input) {
 
     const rotations = generateRotationMatrices();
 
-    let reports = [];
+    let scanners = [];
     let scanner;
 
-    lines.forEach((line) => {
+    lines.forEach((line, ix) => {
         if (line.startsWith('---')) {
             scanner = rotations.map(() => ({
                 beacons: [],
                 set: null
             }));
-            reports.push(scanner);
+            scanners.push(scanner);
         } else {
             const vector = sscanf(line, '%d,%d,%d');
             for (let i = 0; i < rotations.length; i++) {
@@ -179,76 +179,74 @@ function run(input) {
         }
     });
 
-    const initial = reports.shift()[0];
+    const initial = scanners.shift()[0];
+    initial.set = new Set(initial.beacons.map((x) => x.join(',')));
+    const fixed = [initial];
 
-    const beacons = initial.beacons;
-    const scanners = [];
-    const set = new Set(initial.beacons.map((x) => x.join(',')));
-
-    while (reports.length) {
-        console.log('find report', reports.length);
+    while (scanners.length) {
+        console.log('find scanner', scanners.length);
         let i = 0;
         const toRemove = [];
-        for (const report of reports) {
+        for (const test of scanners) {
             console.log('testing', i);
-            if (getMatchingRotation(report)) {
-                toRemove.push(report);
+            const rotation = getMatchingRotation(test, fixed);
+            if (rotation) {
+                toRemove.push(test);
+                fixed.push(rotation);
             }
             i++;
         }
-
-        reports = reports.filter((x) => toRemove.indexOf(x) === -1);
+        scanners = scanners.filter((x) => toRemove.indexOf(x) === -1);
     }
 
-    part1 = set.size;
+    const beacons = new Set();
+    for (const fixedRotation of fixed) {
+        for (const beacon of fixedRotation.beacons) {
+            beacons.add(beacon.join(','));
+        }
+    }
 
-    function getMatchingRotation(test) {
-        for (const testRotation of test) {
-            for (let i = 0; i < beacons.length - 11; i++) {
-                const fixedPoint = beacons[i];
+    part1 = beacons.size;
+
+    return [part1, part2];
+}
+
+function getMatchingRotation(test, fixed) {
+    // console.log('get matching rotation');
+    for (const testRotation of test) {
+        for (const fixedRotation of fixed) {
+            for (let i = 0; i < fixedRotation.beacons.length - 11; i++) {
+                const fixedPoint = fixedRotation.beacons[i];
+
                 for (const testPoint of testRotation.beacons) {
                     const diff = fixedPoint.map((v, i) => v - testPoint[i]);
 
                     let matchingCount = 0;
-                    const transformedBeacons = testRotation.beacons.map((beacon) => {
-                        const transformed = add(beacon, diff);
-                        if (set.has(transformed.join(','))) {
-                            matchingCount++;
-                        }
-                        return transformed;
-                    });
+                    const transformedBeacons = [];
 
-                    if (matchingCount >= 12) {
-                        for (const beacon of transformedBeacons) {
-                            const key = beacon.join(',');
-                            if (!set.has(key)) {
-                                set.add(key);
-                                beacons.push(beacon);
+                    for (let i = 0; i < testRotation.beacons.length; i++) {
+                        const transformed = add(testRotation.beacons[i], diff);
+                        if (fixedRotation.set.has(transformed.join(','))) {
+                            matchingCount++;
+                        } else {
+                            if (matchingCount + (testRotation.beacons.length - i - 1) < 12) {
+                                break;
                             }
                         }
-                        scanners.push(diff);
-                        return true;
+                        transformedBeacons.push(transformed);
+                    }
+
+                    if (matchingCount >= 12) {
+                        testRotation.beacons = transformedBeacons;
+                        testRotation.set = new Set(transformedBeacons.map((x) => x.join(',')));
+                        // testRotation.min = add(testRotation.min, diff);
+
+                        return testRotation;
                     }
                 }
             }
         }
     }
-
-    part1 = set.size;
-
-    let max = 0;
-    for (const a of scanners) {
-        for (const b of scanners) {
-            const d = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
-            if (d > max) {
-                max = d;
-            }
-        }
-    }
-
-    part2 = max;
-
-    return [part1, part2];
 }
 
 function add(a, b) {
