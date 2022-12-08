@@ -34,13 +34,44 @@ function run(input) {
         });
     });
 
+    const max = Math.max(grid.maxCol, grid.maxRow);
+
     grid.forEach((v, col, row) => {
-        let visible = v1(v, col, row) || v2(v, col, row) || v3(v, col, row) || v4(v, col, row);
-        if (visible) {
-            part1++;
+        let leftVisible = true,
+            rightVisible = true,
+            upVisible = true,
+            downVisible = true;
+        let leftDist = col,
+            rightDist = grid.maxCol - col,
+            upDist = row,
+            downDist = grid.maxRow - row;
+        for (let i = 0; i <= max; i++) {
+            if (grid.get(i, row) >= v) {
+                if (i < col) {
+                    leftVisible = false;
+                    leftDist = Math.min(leftDist, col - i);
+                }
+                if (i > col) {
+                    rightVisible = false;
+                    rightDist = Math.min(rightDist, i - col);
+                }
+            }
+            if (grid.get(col, i) >= v) {
+                if (i < row) {
+                    upVisible = false;
+                    upDist = Math.min(upDist, row - i);
+                }
+                if (i > row) {
+                    downVisible = false;
+                    downDist = Math.min(downDist, i - row);
+                }
+            }
         }
 
-        const score = s1(v, col, row) * s2(v, col, row) * s3(v, col, row) * s4(v, col, row);
+        if (leftVisible || rightVisible || upVisible || downVisible) {
+            part1++;
+        }
+        const score = leftDist * rightDist * upDist * downDist;
         part2 = Math.max(score, part2);
     });
 
