@@ -146,80 +146,50 @@ function run(input) {
         }
     }
 
-    const turns = {
-        left: 0,
-        right: 0
-    };
-
-    /** @type {Set<Node>} */
-    const leftSet = new Set();
-    /** @type {Set<Node>} */
-    const rightSet = new Set();
-
-    while (true) {
+    all: while (true) {
         const node = path.at(-1);
         const c = connected[node.char];
-        leftSet.delete(node);
-        rightSet.delete(node);
 
         for (const n of [c.from, c.to]) {
             const next = map.get(node.x + n[0], node.y + n[1]);
-
+            if (next === path[0]) {
+                break all;
+            }
             if (next && next.steps === undefined) {
                 next.steps = node.steps + 1;
                 path.push(next);
-                if (c.turn) {
-                    if (n === c.to) {
-                        turns[c.turn]++;
-                    } else {
-                        turns[c.turn]--;
-                    }
-                }
-                for (const [dx, dy] of c.left) {
-                    let leftNode = map.get(node.x + dx, node.y + dy);
-                    if (leftNode && leftNode.steps === undefined) {
-                        // debugger;
-                        if (n === c.to) {
-                            leftSet.add(leftNode);
-                        } else {
-                            rightSet.add(leftNode);
-                        }
-                    }
-                }
-                for (const [dx, dy] of c.right) {
-                    let rightNode = map.get(node.x + dx, node.y + dy);
-                    if (rightNode && rightNode.steps === undefined) {
-                        // debugger;
-                        if (n === c.to) {
-                            rightSet.add(rightNode);
-                        } else {
-                            leftSet.add(rightNode);
-                        }
-                    }
-                }
                 break;
             }
-        }
-
-        if (path.at(-1) === node) {
-            break;
         }
     }
 
     part1 = (path.at(-1).steps + 1) / 2;
 
-    let set = turns.left > turns.right ? leftSet : rightSet;
+    const onPath = new Set(path);
 
-    let list = [...set];
-
-    while (list.length) {
-        const node = list.shift();
-        part2++;
-        for (const n of neighbours) {
-            const next = map.get(node.x + n[0], node.y + n[1]);
-            if (next && next.steps === undefined && !set.has(next)) {
-                set.add(next);
-                list.push(next);
+    for (let y = 0; y <= map.maxRow; y++) {
+        let out = true;
+        let last = 0;
+        for (let x = 0; x <= map.maxCol; x++) {
+            const node = map.get(x, y);
+            if (onPath.has(node)) {
+                if (node.char === 'F') {
+                    last = +1;
+                } else if (node.char === 'L') {
+                    last = -1;
+                } else if (node.char === '7') {
+                    if (last === -1) {
+                        out = !out;
+                    }
+                } else if (node.char === 'J') {
+                    if (last === 1) {
+                        out = !out;
+                    }
+                } else if (node.char === '|') {
+                    out = !out;
+                }
+            } else if (!out) {
+                part2++;
             }
         }
     }
