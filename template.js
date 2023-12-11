@@ -3,10 +3,7 @@ const sscanf = require('scan.js').scan;
 const Grid = require('../utils/Grid');
 const List = require('../utils/LinkedList');
 
-let input = '';
-try {
-    input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
-} catch (e) {}
+let input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
 const testInputs = [
     `
 
