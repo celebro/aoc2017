@@ -6,7 +6,6 @@ const List = require('../utils/LinkedList');
 let input = fs.readFileSync(__filename.replace('.js', '.txt'), 'utf8').trim();
 const testInputs = [
     `
-
 `
 ].map((x) => x.trim());
 
@@ -18,13 +17,30 @@ const testInputs = [
 function run(input) {
     let part1 = undefined;
     let part2 = undefined;
-    const lines = input.split('\n').filter((line) => line.length);
+    let lines = readInput(input);
 
-    lines.forEach((line, ix) => {
-        const [] = sscanf(line, '');
-    });
+    for (let lineIx = 0; lineIx < lines.length; lineIx++) {
+        let line = lines[lineIx];
+        let [] = sscanf(line, '');
+    }
 
     return [part1, part2];
+}
+
+/**
+ * @param {string} input
+ */
+function readInput(input) {
+    let lines = input.split('\n');
+    let startIx = 0;
+    let endIx = lines.length;
+    while (lines[startIx] === '\n' || lines[startIx] === '') {
+        startIx++;
+    }
+    while (lines[endIx - 1] === '\n' || lines[endIx - 1] === '') {
+        endIx--;
+    }
+    return lines.slice(startIx, endIx);
 }
 
 for (const testInput of testInputs) {
